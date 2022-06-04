@@ -33,7 +33,7 @@ def update_room_test():
     
     
 def create_room_test():
-    url = "http://localhost:5000/create_room/"
+    url = "http://invisionroomserver.herokuapp.com/create_room/"
     data = {
         "guid": 30
     }
@@ -41,4 +41,5 @@ def create_room_test():
     print(response.content)
         
 if __name__ == "__main__":
-    update_room_test()
+    # update_room_test()
+    create_room_test()
