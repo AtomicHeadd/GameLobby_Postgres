@@ -1,4 +1,3 @@
-from asyncio import protocols
 from pprint import pprint
 from sqlalchemy.orm import sessionmaker
 from enum import Enum
