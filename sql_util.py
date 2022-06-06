@@ -1,15 +1,16 @@
 from pprint import pprint
+import string
 from sqlalchemy.orm import sessionmaker
 from enum import Enum
 from sqlalchemy import create_engine
 
-DB_URL = 'postgres://upueggduidkemk:332e4beba54235af23433659ee4f6db820d69103f0bdf728da5c665d324d61fa@ec2-44-196-174-238.compute-1.amazonaws.com:5432/dfvdfqvkj5lflo'
+DB_URL = 'GO_VISIT_POSTGRESQL_SETTINGS_AND_COPY_CREDENTIALS_URI_AND_PASTE_HERE'
 
-engine = create_engine(DB_URL)
 from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base() 
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer, String, Boolean
+engine = create_engine(DB_URL)
+Base = declarative_base() 
 
 class RoomState(Enum):
     WAITING = 1
@@ -21,15 +22,16 @@ class Room(Base):
     room_id = Column(Integer, primary_key=True)
     is_private = Column(Boolean)
     player_count = Column(Integer)
-    guids = Column(String(255))
+    guids = Column(String(100))
     room_state = Column(Integer)
-    endpoints = Column(String(255)) # IP:Portのリスト
-    invalid_endpoints = Column(String(255)) # 各ポートが有効かのリスト
-    time = Column(Integer)
-    protocols = Column(Integer)
+    endpoints = Column(String(100)) # IP:Portのリスト
+    invalid_endpoints = Column(String(100)) # 各ポートが有効かのリスト
+    settings_args = Column(String(100))
+    invision_index = Column(String(20))
     
     def __init__(self, room_id, first_guid, is_private=False):
         self.room_id = room_id
+        self.is_private = is_private
         self.player_count = 1
         guid_list = [first_guid, 0, 0, 0, 0]
         self.guids = ",".join([str(i) for i in guid_list])
@@ -38,9 +40,11 @@ class Room(Base):
         self.endpoints = ",".join([str(i) for i in EP_list])
         invalids = [False, False, False, False, False]
         self.invalid_endpoints = ",".join([str(i) for i in invalids])
-        self.is_private = is_private
-        self.time = 0
-        protocols = 0
+        self.settings_args = ""
+        self.invision_index = ""
+        # game_time: Overall time for game (default:900)
+        # protocol_time: time for each protocol (default:60)
+        # invision_count: invision_count (default:1)
         
     def get_lists(self):
         guid_list = self.guids.replace(" ", "").split(",")
@@ -48,7 +52,7 @@ class Room(Base):
         port_list = self.invalid_endpoints.replace(" ", "").split(",")
         return guid_list, EP_list, port_list
     
-    def get_json(self):
+    def get_state_dict(self):
         data = {}
         data["room_id"] = self.room_id
         data["room_state"] = str(RoomState(self.room_state))
@@ -81,5 +85,6 @@ def delete_all_rooms():
         print(vars(i))
 
 if __name__ == '__main__':
-    Room.__table__.drop(engine)
+    import random
+    # Room.__table__.drop(engine)
     pass
